@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: SSLCommerz-SpringBoot
+
+sslcommerz:
+  store-id: "testbox"
+  store-password: "qwerty"
+  test-mode: true
+  transaction:
+    amount: "150"
+    currency: "BDT"
+    success-url: "http://localhost:8080/api/payment/success"
+    fail-url: "http://localhost:8080/api/payment/fail"
+  api:
+    base-url: "https://sandbox.sslcommerz.com" # Change this to the production URL when not in test mode
+    initiate-transaction-path: "/gwprocess/v4/api.php"
+    validation-path: "/validator/api/validationserverAPI.php"
