@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
+import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,94 +116,16 @@ public class SSLCommerzService {
                 .block();
     }
 
-    public Mono<Boolean> validateTransactionResponse(String transactionAmount,
-                                                     String transactionCurrency,
-                                                     Map<String, String> request) {
-        if (!request.containsKey("tran_id")) {
-            throw new IllegalArgumentException("Transaction ID is required.");
-        }
-
-        String transactionId = request.get("tran_id");
-        return validateOrder(transactionId, transactionAmount, transactionCurrency, request);
-    }
-
-    private Mono<Boolean> validateOrder(String transactionId, String amount, String currency, Map<String, String> requestParams) {
-        if (!ipnHashVerify(requestParams)) {
-            logger.warn("IPN hash verification failed.");
-            return Mono.just(false);
-        }
-
-        String url = validationPath + "?val_id=" + encode(requestParams.get("val_id"))
-                + "&store_id=" + encode(this.storeId)
-                + "&store_passwd=" + encode(this.storePassword)
-                + "&v=1&format=json";
+    public Mono<ValidationResponse> validateTransaction(String sessionKey, String storeId, String storePassword) {
+        String url = String.format(
+                "/validator/api/merchantTransIDvalidationAPI.php?sessionkey=%s&store_id=%s&store_passwd=%s&format=json",
+                sessionKey, storeId, storePassword);
 
         return webClient.get()
                 .uri(url)
                 .retrieve()
-                .bodyToMono(JsonNode.class)
-                .map(response -> {
-                    logger.info("Validation Response: {}", response);
-                    String status = response.path("status").asText();
-                    return ("VALID".equals(status) || "VALIDATED".equals(status))
-                            && transactionId.equals(response.path("tran_id").asText())
-                            && Math.abs(Double.parseDouble(amount) - response.path("currency_amount").asDouble()) < 1
-                            && currency.equals(response.path("currency_type").asText());
-                })
-                .onErrorResume(e -> {
-                    logger.error("Error during validation: {}", e.getMessage(), e);
-                    return Mono.just(false);
-                });
-    }
-
-    private boolean ipnHashVerify(Map<String, String> requestParams) {
-        String verifySign = requestParams.get("verify_sign");
-        String verifyKey = requestParams.get("verify_key");
-
-        if (verifySign == null || verifyKey == null) {
-            logger.warn("Missing IPN verification keys.");
-            return false;
-        }
-
-        String[] keyList = verifyKey.split(",");
-        TreeMap<String, String> sortedMap = new TreeMap<>();
-
-        for (String key : keyList) {
-            sortedMap.put(key, requestParams.get(key));
-        }
-
-        sortedMap.put("store_passwd", md5(this.storePassword));
-
-        StringBuilder hashString = new StringBuilder();
-        sortedMap.forEach((key, value) -> hashString.append(key).append("=").append(value).append("&"));
-
-        String generatedHash = md5(hashString.substring(0, hashString.length() - 1));
-        boolean verified = generatedHash.equals(verifySign);
-        logger.info("IPN hash verification result: {}", verified);
-        return verified;
-    }
-
-    private String md5(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : messageDigest) {
-                hexString.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("MD5 algorithm not available", e);
-            throw new RuntimeException("MD5 algorithm not available", e);
-        }
-    }
-
-    private String parseGatewayUrl(String response) throws Exception {
-        JsonNode jsonResponse = objectMapper.readTree(response);
-        return jsonResponse.path("GatewayPageURL").asText(null);
-    }
-
-    private String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+                .onStatus(status -> !status.is2xxSuccessful(), response ->
+                        response.bodyToMono(String.class).map(RuntimeException::new))
+                .bodyToMono(ValidationResponse.class);
     }
 }
