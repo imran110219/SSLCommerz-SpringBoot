@@ -2,10 +2,14 @@ package com.sslcommerz.sslcommerzspringboot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
+import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -16,10 +20,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 
-@Component
-public class SSLCommerzClient {
+@Service
+public class SSLCommerzService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SSLCommerzClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(SSLCommerzService.class);
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
     private final String baseUrl;
@@ -29,8 +33,10 @@ public class SSLCommerzClient {
     private final String storePassword;
     private final String successUrl;
     private final String failUrl;
+    private final String cancelUrl;
+    private final String currency;
 
-    public SSLCommerzClient(
+    public SSLCommerzService(
             @Value("${sslcommerz.api.base-url}") String baseUrl,
             @Value("${sslcommerz.api.initiate-transaction-path}") String initiateTransactionPath,
             @Value("${sslcommerz.api.validation-path}") String validationPath,
@@ -38,6 +44,8 @@ public class SSLCommerzClient {
             @Value("${sslcommerz.store-password}") String storePassword,
             @Value("${sslcommerz.transaction.success-url}") String successUrl,
             @Value("${sslcommerz.transaction.fail-url}") String failUrl,
+            @Value("${sslcommerz.transaction.cancel-url}") String cancelUrl,
+            @Value("${sslcommerz.transaction.currency}") String currency,
             WebClient.Builder webClientBuilder,
             ObjectMapper objectMapper
     ) {
@@ -48,35 +56,27 @@ public class SSLCommerzClient {
         this.storePassword = storePassword;
         this.successUrl = successUrl;
         this.failUrl = failUrl;
+        this.cancelUrl = cancelUrl;
+        this.currency = currency;
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.objectMapper = objectMapper;
     }
 
-    public Mono<String> initiateTransaction(Map<String, String> postData) {
-        postData.put("store_id", this.storeId);
-        postData.put("store_passwd", this.storePassword);
-        postData.put("success_url", successUrl);
-        postData.put("fail_url", failUrl);
+    public TransactionResponse initiateTransaction(TransactionRequest request) {
 
-        return webClient.post()
-                .uri(initiateTransactionPath)
-                .bodyValue(postData)
+        request.setStore_id(this.storeId);
+        request.setStore_passwd(this.storePassword);
+        request.setSuccess_url(this.successUrl);
+        request.setFail_url(this.failUrl);
+        request.setCancel_url(this.cancelUrl);
+        request.setCurrency(this.currency);
+
+        return this.webClient.post()
+                .uri(baseUrl+initiateTransactionPath)
+                .bodyValue(request)
                 .retrieve()
-                .bodyToMono(String.class)
-                .flatMap(response -> {
-                    logger.info("Initiate Transaction Response: {}", response);
-                    try {
-                        String gatewayUrl = parseGatewayUrl(response);
-                        if (gatewayUrl != null) {
-                            return Mono.just(gatewayUrl);
-                        } else {
-                            return Mono.error(new RuntimeException("Failed to parse gateway URL."));
-                        }
-                    } catch (Exception e) {
-                        logger.error("Error parsing response: {}", e.getMessage(), e);
-                        return Mono.error(new RuntimeException("Failed to initiate transaction."));
-                    }
-                });
+                .bodyToMono(TransactionResponse.class)
+                .block();
     }
 
     public Mono<Boolean> validateTransactionResponse(String transactionAmount,

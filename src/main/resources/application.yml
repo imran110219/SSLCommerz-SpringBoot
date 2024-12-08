@@ -7,10 +7,10 @@ sslcommerz:
   store-password: "ciphe650299504f174@ssl"
   test-mode: true
   transaction:
-    amount: "150"
     currency: "BDT"
     success-url: "http://localhost:8080/api/payment/success"
     fail-url: "http://localhost:8080/api/payment/fail"
+    cancel-url: "http://localhost:8080/api/payment/cancel"
   api:
     base-url: "https://sandbox.sslcommerz.com" # Change this to the production URL when not in test mode
     initiate-transaction-path: "/gwprocess/v4/api.php"

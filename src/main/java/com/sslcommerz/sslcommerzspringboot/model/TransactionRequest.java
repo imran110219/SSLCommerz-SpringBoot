@@ -1,43 +1,37 @@
 package com.sslcommerz.sslcommerzspringboot.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class TransactionRequest {
-//    @JsonProperty(defaultValue = "150.00")
-    private String totalAmount;
-//    @JsonProperty(defaultValue = "TESTJAVA1234")
-    private String transactionId;
-//    @JsonProperty("http://localhost:9000/success-page")
-    private String successUrl;
-//    @JsonProperty("http://localhost:9000/fail-page")
-    private String failUrl;
-//    @JsonProperty("http://localhost:9000/cancel-page")
-    private String cancelUrl;
-//    @JsonProperty("ABC XY")
-    private String customerName;
-//    @JsonProperty("abc.xyz@example.com")
-    private String customerEmail;
-//    @JsonProperty("Address Line One")
-    private String customerAddress;
-//    @JsonProperty("Dhaka")
-    private String customerCity;
-//    @JsonProperty("1000")
-    private String customerPostcode;
-//    @JsonProperty("Bangladesh")
-    private String customerCountry;
-//    @JsonProperty("0111111111")
-    private String customerPhone;
-//    @JsonProperty("NO")
-    private String shippingMethod;
-//    @JsonProperty("Test Product")
-    private String productName;
-//    @JsonProperty("General")
-    private String productCategory;
-//    @JsonProperty("General")
-    private String productProfile;
+    private String store_id;
+    private String store_passwd;
+    private String total_amount;
+    private String currency;
+    private String tran_id;
+    private String success_url;
+    private String fail_url;
+    private String cancel_url;
+    private String cus_name;
+    private String cus_email;
+    private String cus_add1;
+    private String cus_add2;
+    private String cus_city;
+    private String cus_state;
+    private String cus_postcode;
+    private String cus_country;
+    private String cus_phone;
+    private String cus_fax;
+    private String ship_name;
+    private String ship_add1;
+    private String ship_add2;
+    private String ship_city;
+    private String ship_state;
+    private String ship_postcode;
+    private String ship_country;
+    private String multi_card_name;
+    private String value_a;
+    private String value_b;
+    private String value_c;
+    private String value_d;
 }
-
