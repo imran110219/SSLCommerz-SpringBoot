@@ -23,8 +23,8 @@ public class PaymentController {
     }
 
     @PostMapping("/validate")
-    public Mono<Boolean> validateTransactionResponse(@RequestParam String transactionAmount,
-                                                     @RequestParam String transactionCurrency,
+    public Mono<Boolean> validateTransactionResponse(@RequestParam(defaultValue = "150.00") String transactionAmount,
+                                                     @RequestParam(defaultValue = "BDT") String transactionCurrency,
                                                      @RequestBody TransactionRequest transactionRequest) {
         Map<String, String> request = ParameterBuilder.fromTransactionRequest(transactionRequest);
         return sslCommerzClient.validateTransactionResponse(transactionAmount, transactionCurrency, request);

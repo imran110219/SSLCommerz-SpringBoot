@@ -15,3 +15,9 @@ sslcommerz:
     base-url: "https://sandbox.sslcommerz.com" # Change this to the production URL when not in test mode
     initiate-transaction-path: "/gwprocess/v4/api.php"
     validation-path: "/validator/api/validationserverAPI.php"
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
