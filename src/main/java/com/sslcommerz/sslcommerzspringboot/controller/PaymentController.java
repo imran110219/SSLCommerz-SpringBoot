@@ -5,8 +5,8 @@ import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
 import com.sslcommerz.sslcommerzspringboot.service.SSLCommerzService;
-import com.sslcommerz.sslcommerzspringboot.util.ParameterBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController {
 
     private final SSLCommerzService sslCommerzService;
@@ -30,7 +31,7 @@ public class PaymentController {
     @PostMapping("/ipn-listener")
     public ResponseEntity<String> handleIPN(@RequestParam Map<String, String> ipnData) {
         // Log the incoming data
-        System.out.println("IPN Data Received: " + ipnData);
+        log.info("IPN Data Received: " + ipnData);
 
         // Extract required fields
         String tranId = ipnData.get("tran_id");
@@ -42,32 +43,28 @@ public class PaymentController {
         // Verify the data (e.g., validate the signature, check transaction status)
         if ("VALID".equals(status)) {
             // Process the successful transaction
-            System.out.println("Transaction ID: " + tranId + " is valid with amount: " + amount);
+            log.info("Transaction ID: " + tranId + " is valid with amount: " + amount);
 
             // Perform additional operations such as updating your database or notifying the user
             return ResponseEntity.ok("IPN received and processed successfully");
         } else {
             // Handle invalid or failed transactions
-            System.out.println("Transaction ID: " + tranId + " is invalid or failed.");
+            log.info("Transaction ID: " + tranId + " is invalid or failed.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IPN processing failed");
         }
     }
 
     @GetMapping("/validate")
     public Mono<ValidationResponse> validateTransaction(
-            @RequestParam String sessionKey,
-            @RequestParam String storeId,
-            @RequestParam String storePassword) {
-        return sslCommerzService.validateTransaction(sessionKey, storeId, storePassword);
+            @RequestParam String sessionKey) {
+        return sslCommerzService.validateTransaction(sessionKey);
     }
 
     @GetMapping("/initiate-refund")
-    public Mono<RefundResponse> validateRefund(
+    public Mono<RefundResponse> initiateRefund(
             @RequestParam String bankTranId,
             @RequestParam String refundAmount,
-            @RequestParam String refundRemarks,
-            @RequestParam String storeId,
-            @RequestParam String storePassword) {
-        return sslCommerzService.validateRefund(bankTranId, refundAmount, refundRemarks, storeId, storePassword);
+            @RequestParam String refundRemarks) {
+        return sslCommerzService.validateRefund(bankTranId, refundAmount, refundRemarks);
     }
 }

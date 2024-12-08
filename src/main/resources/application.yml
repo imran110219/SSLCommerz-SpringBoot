@@ -1,6 +1,8 @@
 spring:
   application:
     name: SSLCommerz-SpringBoot
+  thymeleaf:
+    enabled: true
 
 sslcommerz:
   store-id: "ciphe650299504f174"
@@ -12,9 +14,14 @@ sslcommerz:
     fail-url: "http://localhost:8080/api/payment/fail"
     cancel-url: "http://localhost:8080/api/payment/cancel"
   api:
-    base-url: "https://sandbox.sslcommerz.com" # Change this to the production URL when not in test mode
+    sandbox:
+      base-url: "https://sandbox.sslcommerz.com"
+    production:
+      base-url: "https://securepay.sslcommerz.com"
     initiate-transaction-path: "/gwprocess/v4/api.php"
-    validation-path: "/validator/api/validationserverAPI.php"
+    validate-transaction-path: "/validator/api/validationserverAPI.php"
+    refund-transaction-path: "/validator/api/merchantTransIDvalidationAPI.php"
+
 
 springdoc:
   api-docs:

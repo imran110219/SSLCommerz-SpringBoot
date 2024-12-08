@@ -6,10 +6,13 @@ import com.sslcommerz.sslcommerzspringboot.model.RefundResponse;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -23,50 +26,64 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
 @Service
+@RequiredArgsConstructor
 public class SSLCommerzService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SSLCommerzService.class);
-    private final WebClient webClient;
-    private final ObjectMapper objectMapper;
-    private final String baseUrl;
-    private final String initiateTransactionPath;
-    private final String validationPath;
-    private final String storeId;
-    private final String storePassword;
-    private final String successUrl;
-    private final String failUrl;
-    private final String cancelUrl;
-    private final String currency;
+    private final WebClient.Builder webClientBuilder;
 
-    public SSLCommerzService(
-            @Value("${sslcommerz.api.base-url}") String baseUrl,
-            @Value("${sslcommerz.api.initiate-transaction-path}") String initiateTransactionPath,
-            @Value("${sslcommerz.api.validation-path}") String validationPath,
-            @Value("${sslcommerz.store-id}") String storeId,
-            @Value("${sslcommerz.store-password}") String storePassword,
-            @Value("${sslcommerz.transaction.success-url}") String successUrl,
-            @Value("${sslcommerz.transaction.fail-url}") String failUrl,
-            @Value("${sslcommerz.transaction.cancel-url}") String cancelUrl,
-            @Value("${sslcommerz.transaction.currency}") String currency,
-            WebClient.Builder webClientBuilder,
-            ObjectMapper objectMapper
-    ) {
-        this.baseUrl = baseUrl;
-        this.initiateTransactionPath = initiateTransactionPath;
-        this.validationPath = validationPath;
-        this.storeId = storeId;
-        this.storePassword = storePassword;
-        this.successUrl = successUrl;
-        this.failUrl = failUrl;
-        this.cancelUrl = cancelUrl;
-        this.currency = currency;
+    @Value("${sslcommerz.api.sandbox.base-url}")
+    private String sandboxBaseUrl;
+
+    @Value("${sslcommerz.api.production.base-url}")
+    private String productionBaseUrl;
+
+    @Value("${sslcommerz.api.initiate-transaction-path}")
+    private String initiateTransactionPath;
+
+    @Value("${sslcommerz.api.validate-transaction-path}")
+    private String validateTransactionPath;
+
+    @Value("${sslcommerz.api.refund-transaction-path}")
+    private String refundTransactionPath;
+
+    @Value("${sslcommerz.store-id}")
+    private String storeId;
+
+    @Value("${sslcommerz.store-password}")
+    private String storePassword;
+
+    @Value("${sslcommerz.transaction.success-url}")
+    private String successUrl;
+
+    @Value("${sslcommerz.transaction.fail-url}")
+    private String failUrl;
+
+    @Value("${sslcommerz.transaction.cancel-url}")
+    private String cancelUrl;
+
+    @Value("${sslcommerz.transaction.currency}")
+    private String currency;
+
+    @Value("${sslcommerz.test-mode}")
+    private Boolean testMode;
+
+    private WebClient webClient;
+
+    @PostConstruct
+    public void init() {
+        String baseUrl = testMode ? sandboxBaseUrl : productionBaseUrl;
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
-        this.objectMapper = objectMapper;
     }
 
     public TransactionResponse initiateTransaction(TransactionRequest request) {
-
         request.setStore_id(this.storeId);
         request.setStore_passwd(this.storePassword);
         request.setSuccess_url(this.successUrl);
@@ -75,10 +92,9 @@ public class SSLCommerzService {
         request.setCurrency(this.currency);
 
         return this.webClient.post()
-                .uri(baseUrl+initiateTransactionPath)
+                .uri(initiateTransactionPath)
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .body(BodyInserters.fromFormData(
-                        "store_id", request.getStore_id())
+                .body(BodyInserters.fromFormData("store_id", request.getStore_id())
                         .with("store_passwd", request.getStore_passwd())
                         .with("total_amount", request.getTotal_amount())
                         .with("currency", request.getCurrency())
@@ -117,9 +133,9 @@ public class SSLCommerzService {
                 .block();
     }
 
-    public Mono<ValidationResponse> validateTransaction(String sessionKey, String storeId, String storePassword) {
+    public Mono<ValidationResponse> validateTransaction(String sessionKey) {
         String url = String.format(
-                "/validator/api/merchantTransIDvalidationAPI.php?sessionkey=%s&store_id=%s&store_passwd=%s&format=json",
+                validateTransactionPath + "?sessionkey=%s&store_id=%s&store_passwd=%s&format=json",
                 sessionKey, storeId, storePassword);
 
         return webClient.get()
@@ -130,13 +146,16 @@ public class SSLCommerzService {
                 .bodyToMono(ValidationResponse.class);
     }
 
-    public Mono<RefundResponse> validateRefund(String bankTranId, String refundAmount, String refundRemarks, String storeId, String storePassword) {
+    public Mono<RefundResponse> validateRefund(String bankTranId, String refundAmount, String refundRemarks) {
         String url = String.format(
-                "/validator/api/merchantTransIDvalidationAPI.php?bank_tran_id=%s&refund_amount=%s&refund_remarks=%s&store_id=%s&store_passwd=%s&v=1&format=json",
+                refundTransactionPath + "?bank_tran_id=%s&refund_amount=%s&refund_remarks=%s&store_id=%s&store_passwd=%s&v=1&format=json",
                 bankTranId, refundAmount, refundRemarks, storeId, storePassword);
 
         return webClient.get()
                 .uri(url)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(RefundResponse.class);
     }
