@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -73,7 +74,42 @@ public class SSLCommerzService {
 
         return this.webClient.post()
                 .uri(baseUrl+initiateTransactionPath)
-                .bodyValue(request)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .body(BodyInserters.fromFormData(
+                        "store_id", request.getStore_id())
+                        .with("store_passwd", request.getStore_passwd())
+                        .with("total_amount", request.getTotal_amount())
+                        .with("currency", request.getCurrency())
+                        .with("tran_id", request.getTran_id())
+                        .with("success_url", request.getSuccess_url())
+                        .with("fail_url", request.getFail_url())
+                        .with("cancel_url", request.getCancel_url())
+                        .with("cus_name", request.getCus_name())
+                        .with("cus_email", request.getCus_email())
+                        .with("cus_add1", request.getCus_add1())
+                        .with("cus_add2", request.getCus_add2())
+                        .with("cus_city", request.getCus_city())
+                        .with("cus_state", request.getCus_state())
+                        .with("cus_postcode", request.getCus_postcode())
+                        .with("cus_country", request.getCus_country())
+                        .with("cus_phone", request.getCus_phone())
+                        .with("cus_fax", request.getCus_fax())
+                        .with("ship_name", request.getShip_name())
+                        .with("ship_add1", request.getShip_add1())
+                        .with("ship_add2", request.getShip_add2())
+                        .with("ship_city", request.getShip_city())
+                        .with("ship_state", request.getShip_state())
+                        .with("ship_postcode", request.getShip_postcode())
+                        .with("ship_country", request.getShip_country())
+                        .with("multi_card_name", request.getMulti_card_name())
+                        .with("shipping_method", request.getShipping_method())
+                        .with("product_name", request.getProduct_name())
+                        .with("product_category", request.getProduct_category())
+                        .with("product_profile", request.getProduct_profile())
+                        .with("value_a", request.getValue_a())
+                        .with("value_b", request.getValue_b())
+                        .with("value_c", request.getValue_c())
+                        .with("value_d", request.getValue_d()))
                 .retrieve()
                 .bodyToMono(TransactionResponse.class)
                 .block();

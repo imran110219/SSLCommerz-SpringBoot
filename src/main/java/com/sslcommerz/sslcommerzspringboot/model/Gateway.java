@@ -6,10 +6,10 @@ import java.util.List;
 
 @Data
 public class Gateway {
-    private List<String> visa;
-    private List<String> master;
-    private List<String> amex;
-    private List<String> othercards;
-    private List<String> internetbanking;
-    private List<String> mobilebanking;
+    private String visa;
+    private String master;
+    private String amex;
+    private String othercards;
+    private String internetbanking;
+    private String mobilebanking;
 }
