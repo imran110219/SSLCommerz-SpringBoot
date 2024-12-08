@@ -1,5 +1,8 @@
 package com.sslcommerz.sslcommerzspringboot.model;
 
+import lombok.Data;
+
+@Data
 public class Description {
     private String name;
     private String type;
