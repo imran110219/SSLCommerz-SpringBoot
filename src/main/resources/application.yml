@@ -3,8 +3,8 @@ spring:
     name: SSLCommerz-SpringBoot
 
 sslcommerz:
-  store-id: "testbox"
-  store-password: "qwerty"
+  store-id: "ciphe650299504f174"
+  store-password: "ciphe650299504f174@ssl"
   test-mode: true
   transaction:
     amount: "150"
