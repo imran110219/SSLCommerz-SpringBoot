@@ -1,5 +1,6 @@
 package com.sslcommerz.sslcommerzspringboot.controller;
 
+import com.sslcommerz.sslcommerzspringboot.model.RefundResponse;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
@@ -58,5 +59,15 @@ public class PaymentController {
             @RequestParam String storeId,
             @RequestParam String storePassword) {
         return sslCommerzService.validateTransaction(sessionKey, storeId, storePassword);
+    }
+
+    @GetMapping("/initiate-refund")
+    public Mono<RefundResponse> validateRefund(
+            @RequestParam String bankTranId,
+            @RequestParam String refundAmount,
+            @RequestParam String refundRemarks,
+            @RequestParam String storeId,
+            @RequestParam String storePassword) {
+        return sslCommerzService.validateRefund(bankTranId, refundAmount, refundRemarks, storeId, storePassword);
     }
 }

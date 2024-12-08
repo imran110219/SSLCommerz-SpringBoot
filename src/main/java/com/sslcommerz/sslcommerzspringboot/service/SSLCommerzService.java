@@ -2,6 +2,7 @@ package com.sslcommerz.sslcommerzspringboot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sslcommerz.sslcommerzspringboot.model.RefundResponse;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
@@ -127,5 +128,16 @@ public class SSLCommerzService {
                 .onStatus(status -> !status.is2xxSuccessful(), response ->
                         response.bodyToMono(String.class).map(RuntimeException::new))
                 .bodyToMono(ValidationResponse.class);
+    }
+
+    public Mono<RefundResponse> validateRefund(String bankTranId, String refundAmount, String refundRemarks, String storeId, String storePassword) {
+        String url = String.format(
+                "/validator/api/merchantTransIDvalidationAPI.php?bank_tran_id=%s&refund_amount=%s&refund_remarks=%s&store_id=%s&store_passwd=%s&v=1&format=json",
+                bankTranId, refundAmount, refundRemarks, storeId, storePassword);
+
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(RefundResponse.class);
     }
 }
