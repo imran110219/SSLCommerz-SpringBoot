@@ -56,8 +56,8 @@ public class PaymentController {
 
     @GetMapping("/validate")
     public Mono<ValidationResponse> validateTransaction(
-            @RequestParam String sessionKey) {
-        return sslCommerzService.validateTransaction(sessionKey);
+            @RequestParam String tran_id) {
+        return sslCommerzService.validateTransaction(tran_id);
     }
 
     @GetMapping("/initiate-refund")

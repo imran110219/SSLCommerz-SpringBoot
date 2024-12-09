@@ -133,13 +133,14 @@ public class SSLCommerzService {
                 .block();
     }
 
-    public Mono<ValidationResponse> validateTransaction(String sessionKey) {
+    public Mono<ValidationResponse> validateTransaction(String tran_id) {
         String url = String.format(
-                validateTransactionPath + "?sessionkey=%s&store_id=%s&store_passwd=%s&format=json",
-                sessionKey, storeId, storePassword);
+                validateTransactionPath + "?val_id=%s&store_id=%s&store_passwd=%s&format=json",
+                tran_id, storeId, storePassword);
 
         return webClient.get()
                 .uri(url)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
                 .retrieve()
                 .onStatus(status -> !status.is2xxSuccessful(), response ->
                         response.bodyToMono(String.class).map(RuntimeException::new))
