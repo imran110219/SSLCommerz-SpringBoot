@@ -5,6 +5,7 @@ import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
 import com.sslcommerz.sslcommerzspringboot.service.SSLCommerzService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,14 @@ public class PaymentController {
 
     private final SSLCommerzService sslCommerzService;
 
+    @Operation(summary = "Initiate a transaction")
     @PostMapping("/initiate")
     public ResponseEntity<TransactionResponse> initiateTransaction(@RequestBody TransactionRequest transactionRequest) {
         TransactionResponse response = sslCommerzService.initiateTransaction(transactionRequest);
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Handle IPN notifications")
     @PostMapping("/ipn-listener")
     public ResponseEntity<String> handleIPN(@RequestParam Map<String, String> ipnData) {
         // Log the incoming data
@@ -54,12 +57,14 @@ public class PaymentController {
         }
     }
 
+    @Operation(summary = "Validate a transaction")
     @GetMapping("/validate")
     public Mono<ValidationResponse> validateTransaction(
             @RequestParam String tran_id) {
         return sslCommerzService.validateTransaction(tran_id);
     }
 
+    @Operation(summary = "Initiate a refund")
     @GetMapping("/initiate-refund")
     public Mono<RefundResponse> initiateRefund(
             @RequestParam String bankTranId,
