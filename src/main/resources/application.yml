@@ -21,10 +21,3 @@ sslcommerz:
     initiate-transaction-path: "/gwprocess/v4/api.php"
     validate-transaction-path: "/validator/api/validationserverAPI.php"
     refund-transaction-path: "/validator/api/merchantTransIDvalidationAPI.php"
-
-
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
