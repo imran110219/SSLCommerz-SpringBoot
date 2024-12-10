@@ -39,7 +39,7 @@ This project integrates SSLCommerz payment gateway with a Spring Boot applicatio
 
 ### Initiate Transaction
 
-**Endpoint:** `POST /api/transaction/initiate`
+**Endpoint:** `POST /api/payment/initiate`
 
 **Request Body:**
 ```json
@@ -74,3 +74,12 @@ This project integrates SSLCommerz payment gateway with a Spring Boot applicatio
   "value_c": "Value C",
   "value_d": "Value D"
 }
+```
+
+### Validate Transaction
+**Endpoint:** `POST /api/payment/validate`
+
+**Request Parameter**
+```angular2html
+tran_id
+```
