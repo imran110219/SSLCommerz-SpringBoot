@@ -1,12 +1,10 @@
 spring:
   application:
     name: SSLCommerz-SpringBoot
-  thymeleaf:
-    enabled: true
 
 sslcommerz:
-  store-id: "ciphe650299504f174"
-  store-password: "ciphe650299504f174@ssl"
+  store-id: ${SSL_STORE_ID}
+  store-password: ${SSL_STORE_PASSWORD}
   test-mode: true
   transaction:
     currency: "BDT"
