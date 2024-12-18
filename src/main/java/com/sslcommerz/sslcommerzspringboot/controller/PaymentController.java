@@ -17,11 +17,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Slf4j
 public class PaymentController {
 
     private final SSLCommerzService sslCommerzService;
+
+    public PaymentController(SSLCommerzService sslCommerzService) {
+        this.sslCommerzService = sslCommerzService;
+    }
 
     @Operation(summary = "Initiate a transaction")
     @PostMapping("/initiate")
@@ -34,7 +38,7 @@ public class PaymentController {
     @PostMapping("/ipn-listener")
     public ResponseEntity<String> handleIPN(@RequestParam Map<String, String> ipnData) {
         // Log the incoming data
-        log.info("IPN Data Received: " + ipnData);
+//        log.info("IPN Data Received: " + ipnData);
 
         // Extract required fields
         String tranId = ipnData.get("tran_id");
@@ -46,13 +50,13 @@ public class PaymentController {
         // Verify the data (e.g., validate the signature, check transaction status)
         if ("VALID".equals(status)) {
             // Process the successful transaction
-            log.info("Transaction ID: " + tranId + " is valid with amount: " + amount);
+//            log.info("Transaction ID: " + tranId + " is valid with amount: " + amount);
 
             // Perform additional operations such as updating your database or notifying the user
             return ResponseEntity.ok("IPN received and processed successfully");
         } else {
             // Handle invalid or failed transactions
-            log.info("Transaction ID: " + tranId + " is invalid or failed.");
+//            log.info("Transaction ID: " + tranId + " is invalid or failed.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IPN processing failed");
         }
     }

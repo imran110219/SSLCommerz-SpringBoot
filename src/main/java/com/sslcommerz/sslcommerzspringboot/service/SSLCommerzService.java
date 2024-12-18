@@ -1,40 +1,20 @@
 package com.sslcommerz.sslcommerzspringboot.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sslcommerz.sslcommerzspringboot.model.RefundResponse;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.TreeMap;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-@RequiredArgsConstructor
 public class SSLCommerzService {
 
     private final WebClient.Builder webClientBuilder;
@@ -77,6 +57,10 @@ public class SSLCommerzService {
 
     private WebClient webClient;
 
+    public SSLCommerzService(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+    }
+
     @PostConstruct
     public void init() {
         String baseUrl = testMode ? sandboxBaseUrl : productionBaseUrl;
@@ -84,50 +68,50 @@ public class SSLCommerzService {
     }
 
     public TransactionResponse initiateTransaction(TransactionRequest request) {
-        request.setStore_id(this.storeId);
-        request.setStore_passwd(this.storePassword);
-        request.setSuccess_url(this.successUrl);
-        request.setFail_url(this.failUrl);
-        request.setCancel_url(this.cancelUrl);
+        request.setStoreId(this.storeId);
+        request.setStorePassword(this.storePassword);
+        request.setSuccessUrl(this.successUrl);
+        request.setFailUrl(this.failUrl);
+        request.setCancelUrl(this.cancelUrl);
         request.setCurrency(this.currency);
 
         return this.webClient.post()
                 .uri(initiateTransactionPath)
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .body(BodyInserters.fromFormData("store_id", request.getStore_id())
-                        .with("store_passwd", request.getStore_passwd())
-                        .with("total_amount", request.getTotal_amount())
+                .body(BodyInserters.fromFormData("store_id", request.getStoreId())
+                        .with("store_passwd", request.getStorePassword())
+                        .with("total_amount", request.getTotalAmount())
                         .with("currency", request.getCurrency())
-                        .with("tran_id", request.getTran_id())
-                        .with("success_url", request.getSuccess_url())
-                        .with("fail_url", request.getFail_url())
-                        .with("cancel_url", request.getCancel_url())
-                        .with("cus_name", request.getCus_name())
-                        .with("cus_email", request.getCus_email())
-                        .with("cus_add1", request.getCus_add1())
-                        .with("cus_add2", request.getCus_add2())
-                        .with("cus_city", request.getCus_city())
-                        .with("cus_state", request.getCus_state())
-                        .with("cus_postcode", request.getCus_postcode())
-                        .with("cus_country", request.getCus_country())
-                        .with("cus_phone", request.getCus_phone())
-                        .with("cus_fax", request.getCus_fax())
-                        .with("ship_name", request.getShip_name())
-                        .with("ship_add1", request.getShip_add1())
-                        .with("ship_add2", request.getShip_add2())
-                        .with("ship_city", request.getShip_city())
-                        .with("ship_state", request.getShip_state())
-                        .with("ship_postcode", request.getShip_postcode())
-                        .with("ship_country", request.getShip_country())
-                        .with("multi_card_name", request.getMulti_card_name())
-                        .with("shipping_method", request.getShipping_method())
-                        .with("product_name", request.getProduct_name())
-                        .with("product_category", request.getProduct_category())
-                        .with("product_profile", request.getProduct_profile())
-                        .with("value_a", request.getValue_a())
-                        .with("value_b", request.getValue_b())
-                        .with("value_c", request.getValue_c())
-                        .with("value_d", request.getValue_d()))
+                        .with("tran_id", request.getTranId())
+                        .with("success_url", request.getSuccessUrl())
+                        .with("fail_url", request.getFailUrl())
+                        .with("cancel_url", request.getCancelUrl())
+                        .with("cus_name", request.getCusName())
+                        .with("cus_email", request.getCusEmail())
+                        .with("cus_add1", request.getCusAdd1())
+                        .with("cus_add2", request.getCusAdd2())
+                        .with("cus_city", request.getCusCity())
+                        .with("cus_state", request.getCusState())
+                        .with("cus_postcode", request.getCusPostcode())
+                        .with("cus_country", request.getCusCountry())
+                        .with("cus_phone", request.getCusPhone())
+                        .with("cus_fax", request.getCusFax())
+                        .with("ship_name", request.getShipName())
+                        .with("ship_add1", request.getShipAdd1())
+                        .with("ship_add2", request.getShipAdd2())
+                        .with("ship_city", request.getShipCity())
+                        .with("ship_state", request.getShipState())
+                        .with("ship_postcode", request.getShipPostcode())
+                        .with("ship_country", request.getShipCountry())
+                        .with("multi_card_name", request.getMultiCardName())
+                        .with("shipping_method", request.getShippingMethod())
+                        .with("product_name", request.getProductName())
+                        .with("product_category", request.getProductCategory())
+                        .with("product_profile", request.getProductProfile())
+                        .with("value_a", request.getValueA())
+                        .with("value_b", request.getValueB())
+                        .with("value_c", request.getValueC())
+                        .with("value_d", request.getValueD()))
                 .retrieve()
                 .bodyToMono(TransactionResponse.class)
                 .block();
