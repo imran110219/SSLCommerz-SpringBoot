@@ -3,8 +3,8 @@ spring:
     name: SSLCommerz-SpringBoot
 
 sslcommerz:
-  store-id: ${SSL_STORE_ID}
-  store-password: ${SSL_STORE_PASSWORD}
+  store-id: ${SSL_STORE_ID:ciphe650299504f174}
+  store-password: ${SSL_STORE_PASSWORD:ciphe650299504f174@ssl}
   test-mode: true
   transaction:
     currency: "BDT"

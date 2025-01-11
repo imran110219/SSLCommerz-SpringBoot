@@ -1,8 +1,10 @@
 package com.sslcommerz.sslcommerzspringboot.model;
 
 import lombok.Data;
+import lombok.Setter;
 
 @Data
+@Setter
 public class ValidationResponse {
     private String status;
     private String sessionkey;
