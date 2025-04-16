@@ -5,7 +5,6 @@ import com.sslcommerz.sslcommerzspringboot.model.TransactionRequest;
 import com.sslcommerz.sslcommerzspringboot.model.TransactionResponse;
 import com.sslcommerz.sslcommerzspringboot.model.ValidationResponse;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
