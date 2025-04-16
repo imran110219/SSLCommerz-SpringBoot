@@ -1,10 +1,10 @@
 package com.sslcommerz.sslcommerzspringboot.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL) // Ignore null fields
 public class Gateway {
     private String visa;
     private String master;
